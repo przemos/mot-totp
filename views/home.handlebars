@@ -1,34 +1,38 @@
-<form method="POST">
-    <label for="secret">Your secret:</label>
-    <input id="secret" name="secret" type="password" size="50" value="{{secret}}"/>
-</form>
-
+<label for="secret">Your secret:</label>
+<input id="secret" name="secret" type="password" size="50"/>
 <br/>
 <label for="pin">Pin:</label>
 <input readonly id="pin" size="15"/>
-<button id="copyToClipboard"  data-clipboard-target="#pin">
+<button id="copyToClipboard" data-clipboard-target="#pin">
     Copy to clipboard
 </button>
 
 <script>
-    function get_pin() {
-        var secret = $('#secret').val();
+    var $secret = $('#secret');
+    var $pin = $('#pin');
 
+    function update_pin() {
+        var secret = $secret.val();
         if (secret == null || secret.length == 0) {
             return;
         }
+
         $.post({
             url: "/gen",
-            data: {'secret': $('#secret').val()}
+            data: {'secret': secret}
         }).success(function (data) {
-            $('#pin').val(data.pin);
+            $pin.val(data.pin);
         }).fail(function () {
-            $('#pin').val('Invalid secret');
+            $pin.val('Invalid secret');
         });
     }
     setInterval(function () {
-        get_pin();
+        update_pin();
     }, 2000);
+
+    $secret.keyup(function () {
+        update_pin();
+    });
 
     new Clipboard('#copyToClipboard');
 </script>
