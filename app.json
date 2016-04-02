@@ -1,0 +1,6 @@
+{
+  "name": "MOT OTP Generator",
+  "description": "Application generating TOTP codes for MOT 2FA",
+  "repository": "https://github.com/heroku/node-js-getting-started",
+  "image": "heroku/nodejs"
+}
