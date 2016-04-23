@@ -12,6 +12,7 @@
     "express": "~4.13.1",
     "express-handlebars": "^3.0.0",
     "jade": "~1.11.0",
+    "moment": "^2.13.0",
     "morgan": "~1.6.1",
     "serve-favicon": "~2.3.0",
     "speakeasy": "^2.0.0"

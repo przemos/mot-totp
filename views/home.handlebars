@@ -1,15 +1,35 @@
-<label for="secret">Your secret:</label>
-<input id="secret" name="secret" type="password" size="50"/>
-<br/>
-<label for="pin">Pin:</label>
-<input readonly id="pin" size="15"/>
-<button id="copyToClipboard" data-clipboard-target="#pin">
-    Copy to clipboard
-</button>
+<div>
+    <label for="secret">Your secret:</label>
+    <input id="secret" name="secret" type="password" size="50" placeholder="Put your secret..."/>
+</div>
+<div>
+    <label for="drift">Drift:</label>
+    <input id="drift" name="drift" type="text" size="3" value="0"/>
+</div>
+<br/><br/>
+<div id="pin-stack">
 
+
+</div>
+<script id="pin-template" type="text/x-handlebars-template">
+    \{{#if current }}
+    <br/>
+    \{{/if}}
+    <label style="display:inline-block;width:30px" for="pin_\{{driftIndex}}">\{{driftIndex}}:</label>
+    <input readonly id="pin_\{{driftIndex}}" size="6" value="\{{pin}}"/>
+    <button id="copyToClipboard_\{{driftIndex}}" data-clipboard-target="#pin_\{{driftIndex}}">
+        >> Clipboard
+    </button>
+    \{{#if current }}
+    <br/>
+    \{{/if}}
+    <br/>
+</script>
 <script>
     var $secret = $('#secret');
+    var $drift = $('#drift');
     var $pin = $('#pin');
+    var lastPayload = '';
 
     function update_pin() {
         var secret = $secret.val();
@@ -19,20 +39,31 @@
 
         $.post({
             url: "/gen",
-            data: {'secret': secret}
+            data: {'secret': secret, 'drift': $drift.val()}
         }).success(function (data) {
-            $pin.val(data.pin);
+            currentPayload = JSON.stringify(data);
+            if (currentPayload == lastPayload) {
+                return;
+            }
+            lastPayload = currentPayload;
+            var source = $("#pin-template").html();
+            console.log(source);
+            var template = Handlebars.compile(source);
+            $('#pin-stack').html("");
+            data.forEach(function (el) {
+                $('#pin-stack').append(template(el))
+                new Clipboard('#copyToClipboard_' + el.driftIndex);
+            });
+
         }).fail(function () {
-            $pin.val('Invalid secret');
+            $('#pin-stack').html('Invalid secret or server failure');
         });
     }
     setInterval(function () {
         update_pin();
-    }, 2000);
+    }, 1000);
 
     $secret.keyup(function () {
         update_pin();
     });
-
-    new Clipboard('#copyToClipboard');
 </script>
